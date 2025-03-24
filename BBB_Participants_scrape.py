@@ -265,5 +265,5 @@ contestants['Profissao'] = contestants['Profissao'].str.replace('eterinária', '
 
 # Save the dataframe to CSV to my local drive
 
-contestants.to_csv(r'C:\Users\andre\Desktop\Consultancy\Portfolio\Big Brother Brasil\contestants.csv', index=False)
+contestants.to_csv('Contestants.csv', index=False)
 
