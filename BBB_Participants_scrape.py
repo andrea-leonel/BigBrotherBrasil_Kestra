@@ -1,28 +1,4 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# ## Project: An historical analysis of the Big Brother Brasil show
-# (Portuguese below)
-# 
-# This script is part of a project that gathers historical data about the Brazilian version of the Big Brother reality show and analyses how it has changed over its 25 years of existence in terms of demographics, audience participation, and other factors. This show is the most-watched programm in Brazil and the goal is to make all this data available for other analysts who wish to explore it. At the time of writing, this is the only one-stop-shop source of BBB data online.
-# 
-# (Portuguese) Projeto: Uma análise histórica do Big Brother Brasil
-# Esse script faz parte de um projeto que coleta dados históricos sobre o Big Brother Brasil de diferentes fontes e os disponibiliza de forma limpa, normalizada e com as devidas conexões. O objetivo desse projeto é tornar os dados acessíveis para outras pessoas que desejarem analisá-los e, no momento da sua publicação, essaé a única fonte de dados consolidada sobre o Big Brother Brasil.
-# 
-
-# ## Script: pulling contestant information from Wikipedia
-# (Portuguese below)
-# 
-# This script gathers data about the contestants from Wikipedia and structures it in a dataframe. There are also cleaning, normalisation and optimisation steps added to it.
-# 
-# Script: puxando dados dos participantes da Wikipedia
-# Esse script puxa dados dos participantes da Wikipedia e os estruturam em um dataframe. Além disso, os dados são limpos, normalizados e otimizados.
-
-# In[115]:
-
-
 # Libraries
-
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -31,10 +7,6 @@ from io import StringIO
 import csv
 import gzip
 from unidecode import unidecode
-
-
-# In[117]:
-
 
 # URL of the Wikipedia page containing 25 tables with the contestants' information
 url = "https://pt.wikipedia.org/wiki/Lista_de_participantes_do_Big_Brother_Brasil"
@@ -48,7 +20,7 @@ tables = soup.find_all("table", {"class": "wikitable"})
 dataframes = []
 
 for i, table in enumerate(tables):  # Skip the first two tables
-    df = pd.read_html(str(table))[0]  # Convert HTML table to DataFrame
+    df = pd.read_html(StringIO(str(table)))[0]  # Convert HTML table to DataFrame
     df['Edicao'] = f'{i+1}'  # Add a TableID column, start from Table_3
     dataframes.append(df)
 
@@ -68,26 +40,12 @@ contestants = contestants.drop(columns=['Ref.', 'Participantes'])
 # Removing headers of subsequent tables
 contestants = contestants[contestants["Origem"].str.contains("Origem") == False]
 
-# There is an error related to the str() function but the dataframe is still created correctly.
-
-
-# In[118]:
-
-
 #There were nas under the Results column for the ongoing season. Replaced these with "Ongoing". 
 contestants['Resultado'] = contestants['Resultado'].fillna(value="Em andamento em Em andamento")
-
-
-# In[119]:
-
 
 # Some contestants are foreigners so we need an extra column to identify if they are Brazilian.
 brazil_states = ['Acre','Alagoas','Amapá','Amazonas','Bahia','Ceará','Espírito Santo','Goiás','Maranhão','Mato Grosso','Mato Grosso do Sul','Minas Gerais', 'Pará','Paraíba','Paraná','Pernambuco','Piauí','Rio de Janeiro','Rio Grande do Norte','Rio Grande do Sul','Rondônia','Roraima','Santa Catarina','São Paulo','Sergipe','Tocantins','Distrito Federal']
 contestants['Nacionalidade'] = contestants['Origem'].apply(lambda x: 'Brasileiro' if any(sub in x for sub in brazil_states) else 'Estrangeiro')
-
-
-# In[120]:
-
 
 # Split the Origem column into City & State for Brazilians. For foreigners, it should say "Foreigner".
 contestants[['Cidade','Estado']] = contestants['Origem'].str.split(', ', expand=True)
@@ -98,16 +56,8 @@ contestants.loc[condition,['Estado']] = 'Estrangeiro'
 #Removing the Origem column
 contestants = contestants.drop(columns=['Origem'])
 
-
-# In[121]:
-
-
 #Splitting the Resultado column to show the Result and Date separately
 contestants[['Resultado','Data_Resultado']] = contestants['Resultado'].str.split(' em ', expand=True)
-
-
-# In[122]:
-
 
 # Adding Gender using data from the Brazilian Census. When the names are not included in the census, it uses the gendered words in Resultado to determine Gender.
 
@@ -151,36 +101,20 @@ contestants['Genero'] = contestants.apply(
     axis=1
 )
 
-
-# In[123]:
-
-
 #Normalising gendered words in Resultado
 contestants['Resultado'] = contestants['Resultado'].replace('Vencedora','Vencedor')
 contestants['Resultado'] = contestants['Resultado'].str.replace(r'\beliminada\b', 'eliminado', regex=True)
 contestants['Resultado'] = contestants['Resultado'].replace('Expulsa','Expulso')
 contestants['Resultado'] = contestants['Resultado'].replace('Retirada','Retirado')
 
-
-# In[124]:
-
-
 # Adding the year of each contestant show
 contestants['Ano_Edicao'] = contestants['Data_Resultado'].str.slice(-4)
 contestants.loc[contestants['Data_Resultado'] == 'Em andamento', "Ano_Edicao"] = "2025"
-
-
-# In[125]:
-
 
 # Create unique ids for the contestants
 unique_contestants = contestants['Nome'].unique()
 name_to_id = {name: id for id, name in enumerate(unique_contestants, start=1)}
 contestants['ID_Participante'] = contestants['Nome'].map(name_to_id)
-
-
-# In[126]:
-
 
 #Normalising gendered words in Profissao
 contestants['Profissao'] = contestants['Profissao'].str.replace('endedora', 'endedor', regex=True)
@@ -243,16 +177,5 @@ contestants['Profissao'] = contestants['Profissao'].str.replace('Surfista profis
 contestants['Profissao'] = contestants['Profissao'].str.replace('Surfista', 'Atleta surfista', regex=True)
 contestants['Profissao'] = contestants['Profissao'].str.replace('eterinária', 'eterinário', regex=True)
 
-
-# In[127]:
-
-
 # Save the dataframe to CSV
 contestants.to_csv(f'Contestants.csv', index=False)
-
-
-# In[ ]:
-
-
-
-
