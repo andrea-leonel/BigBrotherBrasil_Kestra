@@ -171,15 +171,15 @@ def nominations_scrape(url):
      # Save to csv
     year = url.rsplit('_', 1)[-1]
 
-    Nominations.to_csv(f'nominations-{year}.csv')
-    Individual_nominations.to_csv(f'individual-nominations-{year}.csv')
-    Eviction_results.to_csv(f'eviction-results-{year}.csv')
+    Nominations.to_csv(f'nominations_{year}.csv')
+    Individual_nominations.to_csv(f'individual_nominations_{year}.csv')
+    Eviction_results.to_csv(f'eviction_results_{year}.csv')
 
     return print("CSV files successfully saved")
     
 # List of URLs to process
 base_url = "https://pt.wikipedia.org/wiki/Big_Brother_Brasil_"
-number_of_shows = 3
+number_of_shows = 3 # Edit this to add new shows
 
 urls = [f"{base_url}{i}" for i in range(1, number_of_shows + 1)]
 
