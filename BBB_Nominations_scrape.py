@@ -171,9 +171,9 @@ def nominations_scrape(url):
      # Save to csv
     year = url.rsplit('_', 1)[-1]
 
-    Nominations.to_csv(f'Nominations_{year}.csv')
-    Individual_nominations.to_csv(f'Individual_nominations_{year}.csv')
-    Eviction_results.to_csv(f'Eviction_results_{year}.csv')
+    Nominations.to_csv(f'nominations-{year}.csv')
+    Individual_nominations.to_csv(f'individual-nominations-{year}.csv')
+    Eviction_results.to_csv(f'eviction-results-{year}.csv')
 
     return print("CSV files successfully saved")
     
