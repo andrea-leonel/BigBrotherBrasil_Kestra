@@ -91,6 +91,7 @@ def nominations_scrape(url):
 
     # Replace empty cells with nulls
     Nominations_raw.replace(r'^\s*$', None, regex=True, inplace=True)
+    Nominations_raw.replace(r'(nenhum)', None, regex=True, inplace=True)
 
     # Identify rows where all columns are null - the dividers
     divider_index = Nominations_raw[Nominations_raw.isnull().all(axis=1)].index
